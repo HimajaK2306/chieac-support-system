@@ -1,7 +1,7 @@
+from email_helper import send_notification_email, send_emergency_email
 import streamlit as st
 import requests
 import pandas as pd
-import json
 
 SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxf04M03vEURVBzo1JatzAhAvny4-bJVBRgSHYA014KPA6eOql8wGWa0b8TiaB5nrJ9iQ/exec"
 SHEET_ID = "1h85m2f6UmE9NPOcHrQnU2_n7GWyL1ZTLhyvbJuUrl94"
@@ -22,250 +22,55 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 footer {visibility: hidden;}
 header {visibility: hidden;}
 .block-container { padding-top: 0rem !important; max-width: 100% !important; }
-
-.navbar {
-    background: #ffffff;
-    border-bottom: 1px solid #e8e8e8;
-    padding: 16px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.navbar-brand { font-size: 1.5em; font-weight: 900; color: #1a1a1a; }
-.navbar-brand span { color: #2d6a4f; }
-.navbar-right { display: flex; gap: 12px; align-items: center; }
-
-.hero-section {
-    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%, #f0fdf4 100%);
-    padding: 90px 80px;
-    text-align: center;
-    border-bottom: 1px solid #e8e8e8;
-}
-.hero-badge {
-    display: inline-block;
-    background: #dcfce7;
-    color: #2d6a4f;
-    padding: 6px 18px;
-    border-radius: 100px;
-    font-size: 0.85em;
-    font-weight: 600;
-    margin-bottom: 28px;
-    letter-spacing: 0.5px;
-}
-.hero-title {
-    font-size: 3.8em;
-    font-weight: 900;
-    color: #1a1a1a;
-    line-height: 1.1;
-    margin-bottom: 20px;
-    letter-spacing: -1.5px;
-}
+.navbar { background: #ffffff; border-bottom: 1px solid #e8e8e8; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
+.hero-section { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%, #f0fdf4 100%); padding: 90px 80px; text-align: center; border-bottom: 1px solid #e8e8e8; }
+.hero-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 6px 18px; border-radius: 100px; font-size: 0.85em; font-weight: 600; margin-bottom: 28px; letter-spacing: 0.5px; }
+.hero-title { font-size: 3.8em; font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1.5px; }
 .hero-title span { color: #2d6a4f; }
-.hero-tagline {
-    font-size: 1.1em;
-    color: #2d6a4f;
-    font-style: italic;
-    margin-bottom: 16px;
-    font-weight: 500;
-}
-.hero-subtitle {
-    font-size: 1.1em;
-    color: #666;
-    line-height: 1.8;
-    max-width: 640px;
-    margin: 0 auto 48px auto;
-}
-
-.stats-row {
-    display: flex;
-    justify-content: center;
-    gap: 48px;
-    padding: 48px 80px;
-    background: #ffffff;
-    border-bottom: 1px solid #f0f0f0;
-}
+.hero-tagline { font-size: 1.1em; color: #2d6a4f; font-style: italic; margin-bottom: 16px; font-weight: 500; }
+.hero-subtitle { font-size: 1.1em; color: #666; line-height: 1.8; max-width: 640px; margin: 0 auto 48px auto; }
 .stat-item { text-align: center; }
 .stat-number { font-size: 3em; font-weight: 900; color: #2d6a4f; line-height: 1; }
-.stat-divider { width: 1px; background: #e8e8e8; }
 .stat-label { font-size: 0.85em; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
-
 .section { padding: 80px 80px; }
 .section-alt { background: #fafafa; }
 .section-dark { background: #1a1a1a; }
-
-.section-badge {
-    display: inline-block;
-    background: #dcfce7;
-    color: #2d6a4f;
-    padding: 4px 14px;
-    border-radius: 100px;
-    font-size: 0.8em;
-    font-weight: 600;
-    margin-bottom: 16px;
-    letter-spacing: 0.5px;
-}
-.section-badge-dark {
-    display: inline-block;
-    background: #1e3a2e;
-    color: #4ade80;
-    padding: 4px 14px;
-    border-radius: 100px;
-    font-size: 0.8em;
-    font-weight: 600;
-    margin-bottom: 16px;
-}
+.section-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 4px 14px; border-radius: 100px; font-size: 0.8em; font-weight: 600; margin-bottom: 16px; }
+.section-badge-dark { display: inline-block; background: #1e3a2e; color: #4ade80; padding: 4px 14px; border-radius: 100px; font-size: 0.8em; font-weight: 600; margin-bottom: 16px; }
 .section-title { font-size: 2.2em; font-weight: 800; color: #1a1a1a; margin-bottom: 16px; line-height: 1.2; }
 .section-title-white { font-size: 2.2em; font-weight: 800; color: #ffffff; margin-bottom: 16px; }
 .section-text { color: #666; font-size: 1em; line-height: 1.8; margin-bottom: 24px; }
 .section-text-white { color: #aaaaaa; font-size: 1em; line-height: 1.8; }
-
-.program-card {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
-    border: 1px solid #f0f0f0;
-    border-top: 4px solid #2d6a4f;
-    height: 100%;
-}
+.program-card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; border-top: 4px solid #2d6a4f; height: 100%; }
 .program-title { font-size: 1.3em; font-weight: 800; color: #1a1a1a; margin-bottom: 12px; }
 .program-text { color: #666; font-size: 0.95em; line-height: 1.7; }
-
-.gift-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    border: 1px solid #f0f0f0;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-}
+.gift-card { background: white; border-radius: 12px; padding: 24px; border: 1px solid #f0f0f0; margin-bottom: 16px; display: flex; gap: 16px; align-items: flex-start; }
 .gift-icon { font-size: 1.8em; flex-shrink: 0; }
 .gift-amount { font-size: 1.1em; font-weight: 700; color: #2d6a4f; margin-bottom: 4px; }
 .gift-desc { color: #666; font-size: 0.88em; line-height: 1.6; }
-
-.tags-section {
-    padding: 40px 80px;
-    background: white;
-    text-align: center;
-    border-top: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
-}
+.tags-section { padding: 40px 80px; background: white; text-align: center; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
 .tags-label { color: #888; font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
-.support-tag {
-    display: inline-block;
-    background: #f8f8f8;
-    color: #444;
-    padding: 8px 16px;
-    border-radius: 100px;
-    font-size: 0.88em;
-    font-weight: 500;
-    margin: 4px;
-    border: 1px solid #eeeeee;
-}
-
-.volunteer-section {
-    background: #f0fdf4;
-    padding: 60px 80px;
-    text-align: center;
-    border-top: 1px solid #dcfce7;
-}
-
-.footer-section {
-    background: #111111;
-    padding: 40px 80px;
-    text-align: center;
-}
+.support-tag { display: inline-block; background: #f8f8f8; color: #444; padding: 8px 16px; border-radius: 100px; font-size: 0.88em; font-weight: 500; margin: 4px; border: 1px solid #eeeeee; }
+.volunteer-section { background: #f0fdf4; padding: 60px 80px; text-align: center; border-top: 1px solid #dcfce7; }
+.footer-section { background: #111111; padding: 40px 80px; text-align: center; }
 .footer-text { color: #555; font-size: 0.85em; line-height: 2; }
 .footer-link { color: #4ade80; text-decoration: none; }
-
-.login-page {
-    min-height: 100vh;
-    background: #fafafa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-}
-.login-card {
-    background: white;
-    border-radius: 20px;
-    padding: 48px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    border: 1px solid #f0f0f0;
-    max-width: 440px;
-    width: 100%;
-}
-.login-icon {
-    width: 64px;
-    height: 64px;
-    background: #dcfce7;
-    border-radius: 16px;
-    font-size: 1.8em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px auto;
-    text-align: center;
-    line-height: 64px;
-}
-.login-title { font-size: 1.6em; font-weight: 800; color: #1a1a1a; text-align: center; margin-bottom: 6px; }
-.login-sub { color: #888; text-align: center; font-size: 0.9em; margin-bottom: 32px; }
-
-.dashboard-header {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d6a4f 100%);
-    padding: 32px 40px;
-    margin-bottom: 0;
-}
+.dashboard-header { background: linear-gradient(135deg, #1a1a1a 0%, #2d6a4f 100%); padding: 32px 40px; margin-bottom: 0; }
 .dashboard-title { color: white; font-size: 1.8em; font-weight: 800; margin-bottom: 4px; }
 .dashboard-sub { color: #a8d5b5; font-size: 0.9em; }
-
-.emergency-banner {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: white;
-    padding: 20px 32px;
-    text-align: center;
-    margin-bottom: 0;
-}
+.emergency-banner { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 20px 32px; text-align: center; margin-bottom: 0; }
 .emergency-title { font-size: 1.05em; font-weight: 700; margin-bottom: 4px; }
 .emergency-sub { font-size: 0.85em; opacity: 0.85; }
-
-.sidebar-profile {
-    background: linear-gradient(135deg, #1a1a1a, #2d6a4f);
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    margin-bottom: 16px;
-}
+.sidebar-profile { background: linear-gradient(135deg, #1a1a1a, #2d6a4f); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 16px; }
 .sidebar-name { color: white; font-weight: 700; font-size: 1em; margin-top: 8px; }
 .sidebar-role { color: #a8d5b5; font-size: 0.8em; }
-
-.stTextInput > div > div > input {
-    border-radius: 8px !important;
-    border: 1.5px solid #e8e8e8 !important;
-    padding: 12px 16px !important;
-}
-.stTextInput > div > div > input:focus {
-    border-color: #2d6a4f !important;
-    box-shadow: 0 0 0 3px rgba(45,106,79,0.1) !important;
-}
+.stTextInput > div > div > input { border-radius: 8px !important; border: 1.5px solid #e8e8e8 !important; padding: 12px 16px !important; }
+.stTextInput > div > div > input:focus { border-color: #2d6a4f !important; box-shadow: 0 0 0 3px rgba(45,106,79,0.1) !important; }
 .stSelectbox > div > div { border-radius: 8px !important; }
 .stTextArea > div > div > textarea { border-radius: 8px !important; }
-.stButton > button {
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    transition: all 0.2s !important;
-}
-.stButton > button[kind="primary"] {
-    background: #2d6a4f !important;
-    border: none !important;
-    color: white !important;
-}
-.stButton > button[kind="primary"]:hover {
-    background: #1e4d38 !important;
-    transform: translateY(-1px) !important;
-}
+.stButton > button { border-radius: 8px !important; font-weight: 600 !important; transition: all 0.2s !important; }
+.stButton > button[kind="primary"] { background: #2d6a4f !important; border: none !important; color: white !important; }
+.stButton > button[kind="primary"]:hover { background: #1e4d38 !important; transform: translateY(-1px) !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -304,7 +109,6 @@ def call_api(payload):
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "landing":
 
-    # Navbar
     col1, col2, col3 = st.columns([3, 4, 3])
     with col1:
         st.markdown("""
@@ -325,14 +129,10 @@ if st.session_state.page == "landing":
 
     st.markdown("<hr style='margin:0; border-color:#e8e8e8;'>", unsafe_allow_html=True)
 
-    # Hero
     st.markdown("""
     <div class="hero-section">
         <div class="hero-badge">✦ Serving Chicago Since 2020</div>
-        <div class="hero-title">
-            Education is the<br>
-            <span>Path Forward</span>
-        </div>
+        <div class="hero-title">Education is the<br><span>Path Forward</span></div>
         <div class="hero-tagline">con cariño — with love and care</div>
         <div class="hero-subtitle">
             Chicago Education Advocacy Cooperative (ChiEAC) serves the needs
@@ -343,33 +143,16 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # Stats
     col1, col2, col3, col4, col5, col6, col7 = st.columns([1,2,0.5,2,0.5,2,1])
     with col2:
-        st.markdown("""
-        <div class="stat-item">
-            <div class="stat-number">1,600+</div>
-            <div class="stat-label">Students Served</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="stat-item"><div class="stat-number">1,600+</div><div class="stat-label">Students Served</div></div>', unsafe_allow_html=True)
     with col4:
-        st.markdown("""
-        <div class="stat-item">
-            <div class="stat-number">2020</div>
-            <div class="stat-label">Year Founded</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="stat-item"><div class="stat-number">2020</div><div class="stat-label">Year Founded</div></div>', unsafe_allow_html=True)
     with col6:
-        st.markdown("""
-        <div class="stat-item">
-            <div class="stat-number">K–12+</div>
-            <div class="stat-label">Education Levels</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="stat-item"><div class="stat-number">K–12+</div><div class="stat-label">Education Levels</div></div>', unsafe_allow_html=True)
 
     st.markdown("<hr style='border-color:#f0f0f0; margin:0;'>", unsafe_allow_html=True)
 
-    # Programs
     st.markdown("<div class='section'>", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -379,8 +162,7 @@ if st.session_state.page == "landing":
         <div class="section-text">
             ChiEAC was founded in January 2020 with the vision of providing
             practical pathways to upward social mobility. We have since expanded
-            to include K-12 and Adult Education serving over 1,600 students
-            and counting.
+            to include K-12 and Adult Education serving over 1,600 students and counting.
         </div>
         """, unsafe_allow_html=True)
     with col2:
@@ -390,11 +172,7 @@ if st.session_state.page == "landing":
             <div class="program-card">
                 <div style="font-size:2em; margin-bottom:16px;">🚀</div>
                 <div class="program-title">ELEVATE</div>
-                <div class="program-text">
-                    We create custom professional opportunities for rising scholars.
-                    Mentorship, tutoring, and culturally grounded college and
-                    career guidance for every student we serve.
-                </div>
+                <div class="program-text">We create custom professional opportunities for rising scholars. Mentorship, tutoring, and culturally grounded college and career guidance for every student we serve.</div>
             </div>
             """, unsafe_allow_html=True)
         with c2:
@@ -402,16 +180,11 @@ if st.session_state.page == "landing":
             <div class="program-card">
                 <div style="font-size:2em; margin-bottom:16px;">🤝</div>
                 <div class="program-title">IMPACT</div>
-                <div class="program-text">
-                    We serve as first-responder advocates to students and families
-                    in need — from food and rent assistance to mental health
-                    resources and legal help.
-                </div>
+                <div class="program-text">We serve as first-responder advocates to students and families in need — from food and rent assistance to mental health resources and legal help.</div>
             </div>
             """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Support tags
     st.markdown("""
     <div class="tags-section">
         <div class="tags-label">We help with</div>
@@ -428,7 +201,6 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # Donations
     st.markdown("<div class='section section-alt'>", unsafe_allow_html=True)
     st.markdown("""
     <div class="section-badge">Support Our Mission</div>
@@ -444,51 +216,15 @@ if st.session_state.page == "landing":
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
-        <div class="gift-card">
-            <div class="gift-icon">📱</div>
-            <div>
-                <div class="gift-amount">$65 gives a lifeline</div>
-                <div class="gift-desc">Provides a newly arrived migrant family with a phone, unlimited data, and hotspot access for one month.</div>
-            </div>
-        </div>
-        <div class="gift-card">
-            <div class="gift-icon">🚍</div>
-            <div>
-                <div class="gift-amount">$25 opens a door</div>
-                <div class="gift-desc">Covers public transit for students and parents to get to school, legal appointments, or medical care.</div>
-            </div>
-        </div>
-        <div class="gift-card">
-            <div class="gift-icon">📚</div>
-            <div>
-                <div class="gift-amount">$100 empowers a student</div>
-                <div class="gift-desc">Supports a young person in our ELEVATE Program with mentorship, tutoring, and college guidance.</div>
-            </div>
-        </div>
+        <div class="gift-card"><div class="gift-icon">📱</div><div><div class="gift-amount">$65 gives a lifeline</div><div class="gift-desc">Provides a newly arrived migrant family with a phone, unlimited data, and hotspot access for one month.</div></div></div>
+        <div class="gift-card"><div class="gift-icon">🚍</div><div><div class="gift-amount">$25 opens a door</div><div class="gift-desc">Covers public transit for students and parents to get to school, legal appointments, or medical care.</div></div></div>
+        <div class="gift-card"><div class="gift-icon">📚</div><div><div class="gift-amount">$100 empowers a student</div><div class="gift-desc">Supports a young person in our ELEVATE Program with mentorship, tutoring, and college guidance.</div></div></div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div class="gift-card">
-            <div class="gift-icon">💼</div>
-            <div>
-                <div class="gift-amount">$150 prepares a future</div>
-                <div class="gift-desc">Funds career readiness training through our IMPACT Program including resume support and job coaching.</div>
-            </div>
-        </div>
-        <div class="gift-card">
-            <div class="gift-icon">🧠</div>
-            <div>
-                <div class="gift-amount">$200 brings healing</div>
-                <div class="gift-desc">Supports trauma-informed mental health sessions for families who have endured displacement or poverty.</div>
-            </div>
-        </div>
-        <div class="gift-card">
-            <div class="gift-icon">⚖️</div>
-            <div>
-                <div class="gift-amount">$500 provides hope</div>
-                <div class="gift-desc">Helps grow our volunteer legal clinic where families receive guidance on asylum cases and work permits.</div>
-            </div>
-        </div>
+        <div class="gift-card"><div class="gift-icon">💼</div><div><div class="gift-amount">$150 prepares a future</div><div class="gift-desc">Funds career readiness training through our IMPACT Program including resume support and job coaching.</div></div></div>
+        <div class="gift-card"><div class="gift-icon">🧠</div><div><div class="gift-amount">$200 brings healing</div><div class="gift-desc">Supports trauma-informed mental health sessions for families who have endured displacement or poverty.</div></div></div>
+        <div class="gift-card"><div class="gift-icon">⚖️</div><div><div class="gift-amount">$500 provides hope</div><div class="gift-desc">Helps grow our volunteer legal clinic where families receive guidance on asylum cases and work permits.</div></div></div>
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -496,7 +232,6 @@ if st.session_state.page == "landing":
         st.markdown('<meta http-equiv="refresh" content="0;url=https://www.zeffy.com/en-US/fundraising/chieac-social-impact-project">', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Volunteer
     st.markdown("""
     <div class="volunteer-section">
         <div class="section-badge">Get Involved</div>
@@ -505,7 +240,6 @@ if st.session_state.page == "landing":
             We rely on volunteers to help us provide these vital services.
             Whether you have time to mentor or assist at events, your involvement
             helps us empower students to achieve their goals.
-            Join us in fostering educational equity today.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -513,7 +247,6 @@ if st.session_state.page == "landing":
     if st.button("🤝 Volunteer With ChiEAC", use_container_width=False):
         st.markdown('<meta http-equiv="refresh" content="0;url=https://www.volunteermatch.org/search/org1194340.jsp">', unsafe_allow_html=True)
 
-    # Mission dark section
     st.markdown("""
     <div class="section section-dark">
         <div style="text-align:center;">
@@ -529,7 +262,6 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # Footer
     st.markdown("""
     <div class="footer-section">
         <div class="footer-text">
@@ -553,19 +285,15 @@ elif st.session_state.page == "signup":
 
     col1, col2, col3 = st.columns([3, 4, 3])
     with col1:
-        st.markdown("""
-        <div style="padding: 16px 0;">
-            <span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div style="padding: 16px 0;"><span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span></div>', unsafe_allow_html=True)
     with col3:
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("Log In", use_container_width=True):
+            if st.button("Log In", use_container_width=True, key="signup_login"):
                 st.session_state.page = "login"
                 st.rerun()
         with c2:
-            if st.button("← Home", use_container_width=True):
+            if st.button("← Home", use_container_width=True, key="signup_home"):
                 st.session_state.page = "landing"
                 st.rerun()
 
@@ -589,7 +317,6 @@ elif st.session_state.page == "signup":
                 email = st.text_input("Email Address *", placeholder="your@email.com")
                 password = st.text_input("Password *", type="password", placeholder="Create a password")
                 address = st.text_input("Address *", placeholder="Street address, City, State, ZIP")
-
             with col_b:
                 username = st.text_input("Username *", placeholder="Choose a username")
                 phone = st.text_input("Phone Number *", placeholder="(xxx) xxx-xxxx")
@@ -597,7 +324,6 @@ elif st.session_state.page == "signup":
                 dob = st.date_input("Date of Birth *")
 
             gender = st.selectbox("Gender *", ["Select...", "Female", "Male", "Non-binary", "Prefer not to say", "Other"])
-
             st.markdown("<br>", unsafe_allow_html=True)
             submitted = st.form_submit_button("Create Account →", use_container_width=True, type="primary")
 
@@ -629,12 +355,8 @@ elif st.session_state.page == "signup":
                     else:
                         st.error(f"❌ {result.get('message', 'Something went wrong. Please try again.')}")
 
-        st.markdown("""
-        <div style='text-align:center; margin-top:16px; color:#888; font-size:0.88em;'>
-            Already have an account?
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Log In Instead", use_container_width=True):
+        st.markdown('<div style="text-align:center; margin-top:16px; color:#888; font-size:0.88em;">Already have an account?</div>', unsafe_allow_html=True)
+        if st.button("Log In Instead", use_container_width=True, key="signup_to_login"):
             st.session_state.page = "login"
             st.rerun()
 
@@ -645,19 +367,15 @@ elif st.session_state.page == "login":
 
     col1, col2, col3 = st.columns([3, 4, 3])
     with col1:
-        st.markdown("""
-        <div style="padding: 16px 0;">
-            <span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div style="padding: 16px 0;"><span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span></div>', unsafe_allow_html=True)
     with col3:
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("← Home", use_container_width=True):
+            if st.button("← Home", use_container_width=True, key="login_home"):
                 st.session_state.page = "landing"
                 st.rerun()
         with c2:
-            if st.button("Sign Up", use_container_width=True, type="primary"):
+            if st.button("Sign Up", use_container_width=True, type="primary", key="login_signup"):
                 st.session_state.page = "signup"
                 st.rerun()
 
@@ -702,21 +420,12 @@ elif st.session_state.page == "login":
                 else:
                     st.error("Please enter your username and password!")
 
-        st.markdown("""
-        <div style='text-align:center; margin-top:16px; color:#888; font-size:0.88em;'>
-            Don't have an account yet?
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("Create an Account", use_container_width=True):
+        st.markdown('<div style="text-align:center; margin-top:16px; color:#888; font-size:0.88em;">Don\'t have an account yet?</div>', unsafe_allow_html=True)
+        if st.button("Create an Account", use_container_width=True, key="login_to_signup"):
             st.session_state.page = "signup"
             st.rerun()
 
-        st.markdown("""
-        <div style='text-align:center; margin-top:12px; color:#999; font-size:0.82em;'>
-            Need help? Contact us at
-            <a href="mailto:benjamin@chieac.org" style="color:#2d6a4f;">benjamin@chieac.org</a>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center; margin-top:12px; color:#999; font-size:0.82em;">Need help? Contact us at <a href="mailto:benjamin@chieac.org" style="color:#2d6a4f;">benjamin@chieac.org</a></div>', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
 # STUDENT DASHBOARD
@@ -773,6 +482,7 @@ elif st.session_state.page == "student_dashboard":
             "urgency": "Critical - Need help today",
             "description": f"EMERGENCY REQUEST from {st.session_state.name} — Needs immediate assistance!"
         })
+        send_emergency_email(st.session_state.name, st.session_state.email)
         st.error("🚨 Emergency alert sent! ChiEAC staff will contact you immediately. If urgent call 773-599-0267")
 
     st.markdown("---")
@@ -823,6 +533,15 @@ elif st.session_state.page == "student_dashboard":
                         "description": description
                     })
                     if result.get("status") == "success":
+                        send_notification_email(
+                            student_name=name_input,
+                            support_type=support_type,
+                            urgency=urgency,
+                            description=description,
+                            neighborhood=neighborhood,
+                            phone=phone,
+                            email=email_input
+                        )
                         st.success("✅ Your request has been submitted! A ChiEAC team member will reach out soon.")
                         st.balloons()
                     else:

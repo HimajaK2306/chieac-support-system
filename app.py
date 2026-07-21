@@ -3,7 +3,7 @@ import streamlit as st
 import requests
 import pandas as pd
 
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxf04M03vEURVBzo1JatzAhAvny4-bJVBRgSHYA014KPA6eOql8wGWa0b8TiaB5nrJ9iQ/exec"
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGO-wgCcacgsqOIo9eiP0M3uWqNjH0Da_4eKkPUJ24IaY1ldL2ouMvId7OoUhmQ8DlXw/exec"
 SHEET_ID = "1h85m2f6UmE9NPOcHrQnU2_n7GWyL1ZTLhyvbJuUrl94"
 REQUESTS_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Requests"
 
@@ -64,6 +64,10 @@ header {visibility: hidden;}
 .sidebar-profile { background: linear-gradient(135deg, #1a1a1a, #2d6a4f); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 16px; }
 .sidebar-name { color: white; font-weight: 700; font-size: 1em; margin-top: 8px; }
 .sidebar-role { color: #a8d5b5; font-size: 0.8em; }
+.request-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #f0f0f0; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.status-pending { color: #d97706; font-weight: 600; }
+.status-progress { color: #2563eb; font-weight: 600; }
+.status-resolved { color: #2d6a4f; font-weight: 600; }
 .stTextInput > div > div > input { border-radius: 8px !important; border: 1.5px solid #e8e8e8 !important; padding: 12px 16px !important; }
 .stTextInput > div > div > input:focus { border-color: #2d6a4f !important; box-shadow: 0 0 0 3px rgba(45,106,79,0.1) !important; }
 .stSelectbox > div > div { border-radius: 8px !important; }
@@ -103,6 +107,15 @@ def call_api(payload):
         return res.json()
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+def get_status_color(status):
+    if status == "Pending":
+        return "🟡"
+    elif status == "In Progress":
+        return "🔵"
+    elif status == "Resolved":
+        return "✅"
+    return "⚪"
 
 # ══════════════════════════════════════════════════════════════
 # LANDING PAGE
@@ -551,17 +564,34 @@ elif st.session_state.page == "student_dashboard":
 
     elif st.session_state.student_tab == "history":
         st.markdown("### 📋 My Past Requests")
+        st.markdown("Track the status of your support requests below.")
+        st.markdown("<br>", unsafe_allow_html=True)
         try:
             df = pd.read_csv(REQUESTS_URL)
             df.columns = ["Timestamp", "Username", "Name", "Email", "Phone",
                          "Neighborhood", "Support Type", "Urgency", "Description", "Status"]
             my_requests = df[df["Username"] == st.session_state.user]
             if len(my_requests) > 0:
-                st.dataframe(my_requests[["Timestamp", "Support Type", "Urgency", "Status", "Description"]],
-                           use_container_width=True)
+                for _, row in my_requests.iterrows():
+                    status_icon = get_status_color(row["Status"])
+                    with st.expander(f"{status_icon} {row['Support Type']} — {row['Urgency']} | {row['Status']}"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.markdown(f"**Submitted:** {row['Timestamp']}")
+                            st.markdown(f"**Support Type:** {row['Support Type']}")
+                            st.markdown(f"**Urgency:** {row['Urgency']}")
+                        with col2:
+                            st.markdown(f"**Status:** {status_icon} {row['Status']}")
+                            if row['Status'] == "Pending":
+                                st.markdown("*Your request is being reviewed by ChiEAC staff.*")
+                            elif row['Status'] == "In Progress":
+                                st.markdown("*ChiEAC staff are actively working on your request!*")
+                            elif row['Status'] == "Resolved":
+                                st.markdown("*Your request has been resolved!*")
+                        st.markdown(f"**Description:** {row['Description']}")
             else:
                 st.info("You have not submitted any requests yet.")
-        except:
+        except Exception as e:
             st.info("Request history coming soon! Contact benjamin@chieac.org for updates.")
 
 # ══════════════════════════════════════════════════════════════
@@ -623,10 +653,10 @@ elif st.session_state.page == "staff_dashboard":
             with col3:
                 st.metric("🟠 High", len(df[df["Urgency"] == "High - Need help this week"]))
             with col4:
-                st.metric("🟡 Medium", len(df[df["Urgency"] == "Medium - Need help this month"]))
+                st.metric("🟡 Pending", len(df[df["Status"] == "Pending"]))
 
             st.markdown("---")
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
             with col1:
                 urgency_filter = st.selectbox("Filter by Urgency",
                     ["All", "Critical - Need help today", "High - Need help this week",
@@ -636,15 +666,61 @@ elif st.session_state.page == "staff_dashboard":
                     ["All", "Food", "Rent", "Transportation", "Technology",
                      "School Supplies", "Mental Health", "Housing", "Legal Help",
                      "Career Readiness", "EMERGENCY", "Other"])
+            with col3:
+                status_filter = st.selectbox("Filter by Status",
+                    ["All", "Pending", "In Progress", "Resolved"])
 
             filtered = df.copy()
             if urgency_filter != "All":
                 filtered = filtered[filtered["Urgency"] == urgency_filter]
             if type_filter != "All":
                 filtered = filtered[filtered["Support Type"] == type_filter]
+            if status_filter != "All":
+                filtered = filtered[filtered["Status"] == status_filter]
 
             st.markdown(f"**Showing {len(filtered)} of {len(df)} requests**")
-            st.dataframe(filtered, use_container_width=True, height=420)
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            for idx, row in filtered.iterrows():
+                status_icon = get_status_color(row["Status"])
+                with st.expander(f"{status_icon} {row['Name']} — {row['Support Type']} | {row['Urgency']} | {row['Status']}"):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown(f"**Name:** {row['Name']}")
+                        st.markdown(f"**Email:** {row['Email']}")
+                        st.markdown(f"**Phone:** {row['Phone'] if row['Phone'] else 'Not provided'}")
+                        st.markdown(f"**Neighborhood:** {row['Neighborhood'] if row['Neighborhood'] else 'Not provided'}")
+                    with col2:
+                        st.markdown(f"**Support Type:** {row['Support Type']}")
+                        st.markdown(f"**Urgency:** {row['Urgency']}")
+                        st.markdown(f"**Submitted:** {row['Timestamp']}")
+                        st.markdown(f"**Current Status:** {status_icon} {row['Status']}")
+
+                    st.markdown(f"**Description:** {row['Description']}")
+                    st.markdown("---")
+
+                    col1, col2 = st.columns([2, 1])
+                    with col1:
+                        new_status = st.selectbox(
+                            "Update Status",
+                            ["Pending", "In Progress", "Resolved"],
+                            index=["Pending", "In Progress", "Resolved"].index(row["Status"]) if row["Status"] in ["Pending", "In Progress", "Resolved"] else 0,
+                            key=f"status_{idx}"
+                        )
+                    with col2:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        if st.button("Update →", key=f"btn_{idx}", type="primary"):
+                            result = call_api({
+                                "action": "update_status",
+                                "username": row["Username"],
+                                "support_type": row["Support Type"],
+                                "new_status": new_status
+                            })
+                            if result.get("status") == "success":
+                                st.success(f"✅ Status updated to {new_status}!")
+                                st.rerun()
+                            else:
+                                st.error("Could not update. Please try again.")
 
         except Exception as e:
             st.error(f"Error loading requests: {e}")

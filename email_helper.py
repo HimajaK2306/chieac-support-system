@@ -1,14 +1,11 @@
 import smtplib
-import os
+import streamlit as st
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
 
-load_dotenv()
-
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-NOTIFY_EMAIL = os.getenv("NOTIFY_EMAIL")
+EMAIL_ADDRESS = st.secrets["EMAIL_ADDRESS"]
+EMAIL_PASSWORD = st.secrets["EMAIL_PASSWORD"]
+NOTIFY_EMAIL = st.secrets["NOTIFY_EMAIL"]
 
 def send_notification_email(student_name, support_type, urgency, description, neighborhood, phone, email):
     try:

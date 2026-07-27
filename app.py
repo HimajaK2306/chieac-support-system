@@ -2,8 +2,10 @@ from email_helper import send_notification_email, send_emergency_email
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.express as px
+import json
 
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGO-wgCcacgsqOIo9eiP0M3uWqNjH0Da_4eKkPUJ24IaY1ldL2ouMvId7OoUhmQ8DlXw/exec"
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQ3dw29NDTae52mq76GoCjhoHQqTJYR06C6bZ5a0uVpDoywsOerZ6ZJbjDwWzl3FH0sQ/exec"
 SHEET_ID = "1h85m2f6UmE9NPOcHrQnU2_n7GWyL1ZTLhyvbJuUrl94"
 REQUESTS_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Requests"
 
@@ -22,7 +24,6 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 footer {visibility: hidden;}
 header {visibility: hidden;}
 .block-container { padding-top: 0rem !important; max-width: 100% !important; }
-.navbar { background: #ffffff; border-bottom: 1px solid #e8e8e8; padding: 16px 48px; display: flex; align-items: center; justify-content: space-between; }
 .hero-section { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%, #f0fdf4 100%); padding: 90px 80px; text-align: center; border-bottom: 1px solid #e8e8e8; }
 .hero-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 6px 18px; border-radius: 100px; font-size: 0.85em; font-weight: 600; margin-bottom: 28px; letter-spacing: 0.5px; }
 .hero-title { font-size: 3.8em; font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1.5px; }
@@ -64,10 +65,6 @@ header {visibility: hidden;}
 .sidebar-profile { background: linear-gradient(135deg, #1a1a1a, #2d6a4f); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 16px; }
 .sidebar-name { color: white; font-weight: 700; font-size: 1em; margin-top: 8px; }
 .sidebar-role { color: #a8d5b5; font-size: 0.8em; }
-.request-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #f0f0f0; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-.status-pending { color: #d97706; font-weight: 600; }
-.status-progress { color: #2563eb; font-weight: 600; }
-.status-resolved { color: #2d6a4f; font-weight: 600; }
 .stTextInput > div > div > input { border-radius: 8px !important; border: 1.5px solid #e8e8e8 !important; padding: 12px 16px !important; }
 .stTextInput > div > div > input:focus { border-color: #2d6a4f !important; box-shadow: 0 0 0 3px rgba(45,106,79,0.1) !important; }
 .stSelectbox > div > div { border-radius: 8px !important; }
@@ -103,8 +100,18 @@ def logout():
 
 def call_api(payload):
     try:
-        res = requests.post(SCRIPT_URL, json=payload, timeout=15)
-        return res.json()
+        res = requests.get(
+            SCRIPT_URL,
+            params=payload,
+            timeout=30,
+            allow_redirects=True
+        )
+        text = res.text.strip()
+        if not text:
+            return {"status": "error", "message": "Empty response"}
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        return {"status": "error", "message": f"JSON error: {str(e)}"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -124,11 +131,7 @@ if st.session_state.page == "landing":
 
     col1, col2, col3 = st.columns([3, 4, 3])
     with col1:
-        st.markdown("""
-        <div style="padding: 16px 0;">
-            <span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div style="padding: 16px 0;"><span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span></div>', unsafe_allow_html=True)
     with col3:
         c1, c2 = st.columns(2)
         with c1:
@@ -570,7 +573,7 @@ elif st.session_state.page == "student_dashboard":
             df = pd.read_csv(REQUESTS_URL)
             df.columns = ["Timestamp", "Username", "Name", "Email", "Phone",
                          "Neighborhood", "Support Type", "Urgency", "Description", "Status"]
-            my_requests = df[df["Username"] == st.session_state.user]
+            my_requests = df[df["Email"] == st.session_state.email]
             if len(my_requests) > 0:
                 for _, row in my_requests.iterrows():
                     status_icon = get_status_color(row["Status"])
@@ -620,6 +623,8 @@ elif st.session_state.page == "staff_dashboard":
             st.session_state.staff_tab = "students"
         if st.button("📝 Submit for Student", use_container_width=True):
             st.session_state.staff_tab = "submit"
+        if st.button("📈 Analytics", use_container_width=True):
+            st.session_state.staff_tab = "analytics"
         st.markdown("---")
         if st.button("🚪 Logout", use_container_width=True):
             logout()
@@ -712,15 +717,15 @@ elif st.session_state.page == "staff_dashboard":
                         if st.button("Update →", key=f"btn_{idx}", type="primary"):
                             result = call_api({
                                 "action": "update_status",
-                                "username": row["Username"],
-                                "support_type": row["Support Type"],
+                                "name": row["Name"],
+                                "email": row["Email"],
                                 "new_status": new_status
                             })
                             if result.get("status") == "success":
                                 st.success(f"✅ Status updated to {new_status}!")
                                 st.rerun()
                             else:
-                                st.error("Could not update. Please try again.")
+                                st.error(f"Could not update: {result.get('message', 'Please try again')}")
 
         except Exception as e:
             st.error(f"Error loading requests: {e}")
@@ -751,6 +756,77 @@ elif st.session_state.page == "staff_dashboard":
             st.dataframe(students, use_container_width=True)
         except Exception as e:
             st.error(f"Error loading students: {e}")
+
+    elif st.session_state.staff_tab == "analytics":
+        st.markdown("### 📈 Analytics Dashboard")
+        st.markdown("Visual insights into student support requests")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        try:
+            df = pd.read_csv(REQUESTS_URL)
+            df.columns = ["Timestamp", "Username", "Name", "Email", "Phone",
+                         "Neighborhood", "Support Type", "Urgency", "Description", "Status"]
+
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("Total Requests", len(df))
+            with col2:
+                st.metric("✅ Resolved", len(df[df["Status"] == "Resolved"]))
+            with col3:
+                st.metric("🔵 In Progress", len(df[df["Status"] == "In Progress"]))
+            with col4:
+                st.metric("🟡 Pending", len(df[df["Status"] == "Pending"]))
+
+            st.markdown("---")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("#### Support Type Breakdown")
+                support_counts = df["Support Type"].value_counts().reset_index()
+                support_counts.columns = ["Support Type", "Count"]
+                fig1 = px.bar(support_counts, x="Count", y="Support Type", orientation="h",
+                    color="Count", color_continuous_scale=["#dcfce7", "#2d6a4f"],
+                    title="Requests by Support Type")
+                fig1.update_layout(plot_bgcolor="white", paper_bgcolor="white",
+                    showlegend=False, coloraxis_showscale=False, height=350)
+                st.plotly_chart(fig1, use_container_width=True)
+
+            with col2:
+                st.markdown("#### Request Status Overview")
+                status_counts = df["Status"].value_counts().reset_index()
+                status_counts.columns = ["Status", "Count"]
+                fig2 = px.pie(status_counts, values="Count", names="Status",
+                    color_discrete_map={"Pending": "#f59e0b", "In Progress": "#3b82f6", "Resolved": "#2d6a4f"},
+                    title="Request Status Distribution")
+                fig2.update_layout(plot_bgcolor="white", paper_bgcolor="white", height=350)
+                st.plotly_chart(fig2, use_container_width=True)
+
+            st.markdown("---")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("#### Urgency Level Breakdown")
+                urgency_counts = df["Urgency"].value_counts().reset_index()
+                urgency_counts.columns = ["Urgency", "Count"]
+                fig3 = px.bar(urgency_counts, x="Urgency", y="Count", color="Count",
+                    color_continuous_scale=["#dcfce7", "#2d6a4f"], title="Requests by Urgency Level")
+                fig3.update_layout(plot_bgcolor="white", paper_bgcolor="white",
+                    showlegend=False, coloraxis_showscale=False, height=350)
+                st.plotly_chart(fig3, use_container_width=True)
+
+            with col2:
+                st.markdown("#### Top Neighborhoods Needing Help")
+                neighborhood_counts = df["Neighborhood"].value_counts().head(10).reset_index()
+                neighborhood_counts.columns = ["Neighborhood", "Count"]
+                fig4 = px.bar(neighborhood_counts, x="Count", y="Neighborhood", orientation="h",
+                    color="Count", color_continuous_scale=["#dcfce7", "#2d6a4f"],
+                    title="Top 10 Neighborhoods by Requests")
+                fig4.update_layout(plot_bgcolor="white", paper_bgcolor="white",
+                    showlegend=False, coloraxis_showscale=False, height=350)
+                st.plotly_chart(fig4, use_container_width=True)
+
+        except Exception as e:
+            st.error(f"Error loading analytics: {e}")
 
     elif st.session_state.staff_tab == "submit":
         st.markdown("### 📝 Submit Request on Behalf of a Student")

@@ -19,6 +19,9 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
+@media screen and (max-width: 768px) {
+    .block-container { padding: 0 !important; }
+}
 .stApp { background-color: #ffffff; }
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
@@ -26,7 +29,18 @@ header {visibility: hidden;}
 .block-container { padding-top: 0rem !important; max-width: 100% !important; }
 .hero-section { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%, #f0fdf4 100%); padding: 90px 80px; text-align: center; border-bottom: 1px solid #e8e8e8; }
 .hero-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 6px 18px; border-radius: 100px; font-size: 0.85em; font-weight: 600; margin-bottom: 28px; letter-spacing: 0.5px; }
-.hero-title { font-size: 3.8em; font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1.5px; }
+.hero-title { font-size: clamp(1.5em, 4vw, 3.8em); font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1.5px; }
+@media (max-width: 768px) {
+    .hero-section { padding: 40px 20px !important; }
+    .section { padding: 40px 20px !important; }
+    .tags-section { padding: 24px 20px !important; }
+    .volunteer-section { padding: 40px 20px !important; }
+    .footer-section { padding: 24px 20px !important; }
+    .stat-number { font-size: 2em !important; }
+    .section-title { font-size: 1.6em !important; white-space: normal !important; }
+    .gift-card { flex-direction: column !important; }
+    .program-card { margin-bottom: 16px !important; }
+}
 .hero-title span { color: #2d6a4f; }
 .hero-tagline { font-size: 1.1em; color: #2d6a4f; font-style: italic; margin-bottom: 16px; font-weight: 500; }
 .hero-subtitle { font-size: 1.1em; color: #666; line-height: 1.8; max-width: 640px; margin: 0 auto 48px auto; }
@@ -38,7 +52,7 @@ header {visibility: hidden;}
 .section-dark { background: #1a1a1a; }
 .section-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 4px 14px; border-radius: 100px; font-size: 0.8em; font-weight: 600; margin-bottom: 16px; }
 .section-badge-dark { display: inline-block; background: #1e3a2e; color: #4ade80; padding: 4px 14px; border-radius: 100px; font-size: 0.8em; font-weight: 600; margin-bottom: 16px; }
-.section-title { font-size: 2.2em; font-weight: 800; color: #1a1a1a; margin-bottom: 16px; line-height: 1.2; }
+.section-title { font-size: 2.2em; font-weight: 800; color: #1a1a1a; margin-bottom: 16px; line-height: 1; white-space: nowrap; }
 .section-title-white { font-size: 2.2em; font-weight: 800; color: #ffffff; margin-bottom: 16px; }
 .section-text { color: #666; font-size: 1em; line-height: 1.8; margin-bottom: 24px; }
 .section-text-white { color: #aaaaaa; font-size: 1em; line-height: 1.8; }
@@ -129,21 +143,27 @@ def get_status_color(status):
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "landing":
 
-    col1, col2, col3 = st.columns([3, 4, 3])
-    with col1:
-        st.markdown('<div style="padding: 16px 0;"><span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span></div>', unsafe_allow_html=True)
-    with col3:
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("Log In", use_container_width=True):
-                st.session_state.page = "login"
-                st.rerun()
-        with c2:
-            if st.button("Sign Up", use_container_width=True, type="primary"):
-                st.session_state.page = "signup"
-                st.rerun()
-
-    st.markdown("<hr style='margin:0; border-color:#e8e8e8;'>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:white; border-bottom:1px solid #e8e8e8; flex-wrap:wrap; gap:8px;">
+        <div style="flex:0 0 auto;">
+            <img src="https://images.squarespace-cdn.com/content/v1/5e20c115d763a90de6f29cae/b3f5e6ff-7104-4b29-aa4d-ecb59ef49f3a/New+Logo.png?format=1500w" style="height:55px; object-fit:contain;">
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; margin-left:auto; flex-wrap:wrap; justify-content:flex-end;">
+            <a href="?page=login" style="text-decoration:none;">
+                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Donate</button>
+            </a>
+            <a href="https://www.volunteermatch.org/search/org1194340.jsp" target="_blank" style="text-decoration:none;">
+                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Volunteer</button>
+            </a>
+            <button onclick="window.location.href='?page=signup'" style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Get Help</button>
+            <a href="?page=login" style="text-decoration:none;">
+                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Log In</button>
+            </a>
+            <a href="?page=signup" style="text-decoration:none;">
+                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Sign Up</button>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="hero-section">
@@ -174,7 +194,7 @@ if st.session_state.page == "landing":
     with col1:
         st.markdown("""
         <div class="section-badge">Our Programs</div>
-        <div class="section-title">ELEVATE<br>& IMPACT</div>
+        <div class="section-title">ELEVATE & IMPACT</div>
         <div class="section-text">
             ChiEAC was founded in January 2020 with the vision of providing
             practical pathways to upward social mobility. We have since expanded
@@ -217,10 +237,10 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='section section-alt'>", unsafe_allow_html=True)
+    
     st.markdown("""
-    <div class="section-badge">Support Our Mission</div>
-    <div class="section-title">Make a Real Difference<br>in Chicago Communities</div>
+    <div style="background:#fafafa; padding:40px 80px;">
+    <div class="section-title">Make a Real Difference in Chicago Communities</div>
     <div class="section-text">
         We started ChiEAC using the retirement savings of Dr. Drury and have been
         sustained using contributions from our community. We have NEVER relied on
@@ -244,9 +264,8 @@ if st.session_state.page == "landing":
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("💚 Donate to ChiEAC Community Impact Fund", use_container_width=True, type="primary"):
-        st.markdown('<meta http-equiv="refresh" content="0;url=https://www.zeffy.com/en-US/fundraising/chieac-social-impact-project">', unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('<a href="https://www.zeffy.com/en-US/donation-form/behind-the-introduction-international-student-support-fundraiser" target="_blank"><button style="background:#2d6a4f; color:white; padding:14px 32px; border:none; border-radius:8px; font-size:1em; font-weight:600; cursor:pointer; width:100%;">Support ChiEAC Students — Donate Now</button></a>', unsafe_allow_html=True)
+    
 
     st.markdown("""
     <div class="volunteer-section">
@@ -260,9 +279,7 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("🤝 Volunteer With ChiEAC", use_container_width=False):
-        st.markdown('<meta http-equiv="refresh" content="0;url=https://www.volunteermatch.org/search/org1194340.jsp">', unsafe_allow_html=True)
-
+    st.markdown('<a href="https://www.volunteermatch.org/search/org1194340.jsp" target="_blank"><button style="background:#2d6a4f; color:white; padding:14px 32px; border:none; border-radius:8px; font-size:1em; font-weight:600; cursor:pointer; width:100%;">Volunteer With ChiEAC</button></a>', unsafe_allow_html=True)
     st.markdown("""
     <div class="section section-dark">
         <div style="text-align:center;">
@@ -301,7 +318,7 @@ elif st.session_state.page == "signup":
 
     col1, col2, col3 = st.columns([3, 4, 3])
     with col1:
-        st.markdown('<div style="padding: 16px 0;"><span style="font-size:1.5em; font-weight:900; color:#1a1a1a;">Chi<span style="color:#2d6a4f;">EAC</span></span></div>', unsafe_allow_html=True)
+        st.markdown('<div style="padding: 8px 0;"><img src="https://images.squarespace-cdn.com/content/v1/5e20c115d763a90de6f29cae/b3f5e6ff-7104-4b29-aa4d-ecb59ef49f3a/New+Logo.png?format=1500w" style="height:50px; object-fit:contain;"></div>', unsafe_allow_html=True)
     with col3:
         c1, c2 = st.columns(2)
         with c1:

@@ -19,6 +19,9 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
+@media screen and (max-width: 768px) {
+    .block-container { padding: 0 !important; }
+}
 .stApp { background-color: #ffffff; }
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
@@ -26,7 +29,18 @@ header {visibility: hidden;}
 .block-container { padding-top: 0rem !important; max-width: 100% !important; }
 .hero-section { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%, #f0fdf4 100%); padding: 90px 80px; text-align: center; border-bottom: 1px solid #e8e8e8; }
 .hero-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 6px 18px; border-radius: 100px; font-size: 0.85em; font-weight: 600; margin-bottom: 28px; letter-spacing: 0.5px; }
-.hero-title { font-size: clamp(1.8em, 5vw, 3.8em); font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1.5px; }
+.hero-title { font-size: clamp(1.5em, 4vw, 3.8em); font-weight: 900; color: #1a1a1a; line-height: 1.1; margin-bottom: 20px; letter-spacing: -1.5px; }
+@media (max-width: 768px) {
+    .hero-section { padding: 40px 20px !important; }
+    .section { padding: 40px 20px !important; }
+    .tags-section { padding: 24px 20px !important; }
+    .volunteer-section { padding: 40px 20px !important; }
+    .footer-section { padding: 24px 20px !important; }
+    .stat-number { font-size: 2em !important; }
+    .section-title { font-size: 1.6em !important; white-space: normal !important; }
+    .gift-card { flex-direction: column !important; }
+    .program-card { margin-bottom: 16px !important; }
+}
 .hero-title span { color: #2d6a4f; }
 .hero-tagline { font-size: 1.1em; color: #2d6a4f; font-style: italic; margin-bottom: 16px; font-weight: 500; }
 .hero-subtitle { font-size: 1.1em; color: #666; line-height: 1.8; max-width: 640px; margin: 0 auto 48px auto; }
@@ -130,11 +144,11 @@ def get_status_color(status):
 if st.session_state.page == "landing":
 
     st.markdown("""
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 40px; background:white; border-bottom:1px solid #e8e8e8;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:white; border-bottom:1px solid #e8e8e8; flex-wrap:wrap; gap:8px;">
         <div style="flex:0 0 auto;">
-            <img src="https://images.squarespace-cdn.com/content/v1/5e20c115d763a90de6f29cae/b3f5e6ff-7104-4b29-aa4d-ecb59ef49f3a/New+Logo.png?format=1500w" style="height:70px; object-fit:contain;">
+            <img src="https://images.squarespace-cdn.com/content/v1/5e20c115d763a90de6f29cae/b3f5e6ff-7104-4b29-aa4d-ecb59ef49f3a/New+Logo.png?format=1500w" style="height:55px; object-fit:contain;">
         </div>
-        <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+        <div style="display:flex; align-items:center; gap:6px; margin-left:auto; flex-wrap:wrap; justify-content:flex-end;">
             <a href="?page=login" style="text-decoration:none;">
                 <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Donate</button>
             </a>

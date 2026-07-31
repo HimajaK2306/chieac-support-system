@@ -5,14 +5,16 @@ import pandas as pd
 import plotly.express as px
 import json
 
-SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQ3dw29NDTae52mq76GoCjhoHQqTJYR06C6bZ5a0uVpDoywsOerZ6ZJbjDwWzl3FH0sQ/exec"
+SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyvkedZBy_iCpuuL0zVXPaVTaMqxBv-MNDR537kUnL5tqgksdiTjRWL-Lx2GV7kjUE09Q/exec"
 SHEET_ID = "1h85m2f6UmE9NPOcHrQnU2_n7GWyL1ZTLhyvbJuUrl94"
 REQUESTS_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Requests"
 
 st.set_page_config(
     page_title="ChiEAC Support Portal",
     page_icon="🎓",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
+
 )
 
 st.markdown("""
@@ -26,6 +28,9 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
+section[data-testid="stSidebar"] > div {padding-top: 0rem;}
+button[data-testid="baseButton-header"] {display: block !important; visibility: visible !important;}
+[data-testid="collapsedControl"] {display: block !important; visibility: visible !important;}
 .block-container { padding-top: 0rem !important; max-width: 100% !important; }
 .hero-section { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 60%, #f0fdf4 100%); padding: 90px 80px; text-align: center; border-bottom: 1px solid #e8e8e8; }
 .hero-badge { display: inline-block; background: #dcfce7; color: #2d6a4f; padding: 6px 18px; border-radius: 100px; font-size: 0.85em; font-weight: 600; margin-bottom: 28px; letter-spacing: 0.5px; }
@@ -83,7 +88,7 @@ header {visibility: hidden;}
 .stTextInput > div > div > input:focus { border-color: #2d6a4f !important; box-shadow: 0 0 0 3px rgba(45,106,79,0.1) !important; }
 .stSelectbox > div > div { border-radius: 8px !important; }
 .stTextArea > div > div > textarea { border-radius: 8px !important; }
-.stButton > button { border-radius: 8px !important; font-weight: 600 !important; transition: all 0.2s !important; }
+.stButton > button { border-radius: 8px !important; font-weight: 600 !important; transition: all 0.2s !important; background: #2d6a4f !important; color: white !important; border: none !important; }
 .stButton > button[kind="primary"] { background: #2d6a4f !important; border: none !important; color: white !important; }
 .stButton > button[kind="primary"]:hover { background: #1e4d38 !important; transform: translateY(-1px) !important; }
 </style>
@@ -143,28 +148,30 @@ def get_status_color(status):
 # ══════════════════════════════════════════════════════════════
 if st.session_state.page == "landing":
 
-    st.markdown("""
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:white; border-bottom:1px solid #e8e8e8; flex-wrap:wrap; gap:8px;">
-        <div style="flex:0 0 auto;">
-            <img src="https://images.squarespace-cdn.com/content/v1/5e20c115d763a90de6f29cae/b3f5e6ff-7104-4b29-aa4d-ecb59ef49f3a/New+Logo.png?format=1500w" style="height:55px; object-fit:contain;">
-        </div>
-        <div style="display:flex; align-items:center; gap:6px; margin-left:auto; flex-wrap:wrap; justify-content:flex-end;">
-            <a href="?page=login" style="text-decoration:none;">
-                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Donate</button>
-            </a>
-            <a href="https://www.volunteermatch.org/search/org1194340.jsp" target="_blank" style="text-decoration:none;">
-                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Volunteer</button>
-            </a>
-            <button onclick="window.location.href='?page=signup'" style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Get Help</button>
-            <a href="?page=login" style="text-decoration:none;">
-                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Log In</button>
-            </a>
-            <a href="?page=signup" style="text-decoration:none;">
-                <button style="background:#2d6a4f; color:white; padding:8px 20px; border:none; border-radius:6px; font-size:0.85em; font-weight:600; cursor:pointer;">Sign Up</button>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    col_logo, col_space, col_btns = st.columns([3, 0.1, 4])
+    with col_logo:
+        st.markdown('<img src="https://images.squarespace-cdn.com/content/v1/5e20c115d763a90de6f29cae/b3f5e6ff-7104-4b29-aa4d-ecb59ef49f3a/New+Logo.png?format=1500w" style="height:75px; object-fit:contain; margin-top:8px;">', unsafe_allow_html=True)
+    with col_btns:
+        st.markdown("<br>", unsafe_allow_html=True)
+        b1, b2, b3, b4, b5 = st.columns(5)
+        with b1:
+            st.markdown('<a href="https://www.zeffy.com/en-US/donation-form/behind-the-introduction-international-student-support-fundraiser" target="_blank"><button style="background:#2d6a4f; color:white; padding:9px 12px; border:none; border-radius:8px; font-size:0.85em; font-weight:600; cursor:pointer; width:100%;">Donate</button></a>', unsafe_allow_html=True)
+        with b2:
+            st.markdown('<a href="https://www.volunteermatch.org/search/org1194340.jsp" target="_blank"><button style="background:#2d6a4f; color:white; padding:9px 12px; border:none; border-radius:8px; font-size:0.85em; font-weight:600; cursor:pointer; width:100%;">Volunteer</button></a>', unsafe_allow_html=True)
+        with b3:
+            if st.button("Get Help", use_container_width=True, key="nb_help"):
+                st.session_state.page = "signup"
+                st.rerun()
+        with b4:
+            if st.button("Log In", use_container_width=True, key="nb_login"):
+                st.session_state.page = "login"
+                st.rerun()
+        with b5:
+            if st.button("Sign Up", use_container_width=True, key="nb_signup"):
+                st.session_state.page = "signup"
+                st.rerun()
+    st.markdown("<hr style='margin:0; border-color:#e8e8e8;'>", unsafe_allow_html=True)
+    
     st.markdown("""
     <div class="hero-section">
         <div class="hero-badge">✦ Serving Chicago Since 2020</div>
@@ -482,17 +489,23 @@ elif st.session_state.page == "student_dashboard":
             st.session_state.student_tab = "submit"
         if st.button("📋 My Requests", use_container_width=True):
             st.session_state.student_tab = "history"
+        if st.button("👤 My Profile", use_container_width=True):
+            st.session_state.student_tab = "profile"
+        if st.button("📚 Resources", use_container_width=True):
+            st.session_state.student_tab = "resources"
+        if st.button("📞 Contact ChiEAC", use_container_width=True):
+            st.session_state.student_tab = "contact"
+        if st.button("❓ FAQ", use_container_width=True):
+            st.session_state.student_tab = "faq"
+        if st.button("📈 My Progress", use_container_width=True):
+            st.session_state.student_tab = "progress"
         st.markdown("---")
         if st.button("🚪 Logout", use_container_width=True):
             logout()
             st.rerun()
 
-    st.markdown(f"""
-    <div class="dashboard-header">
-        <div class="dashboard-title">Welcome, {st.session_state.name} 👋</div>
-        <div class="dashboard-sub">ChiEAC Student Support Portal — We are here to help</div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.rerun()
+    
 
     st.markdown("""
     <div class="emergency-banner">
@@ -613,7 +626,188 @@ elif st.session_state.page == "student_dashboard":
                 st.info("You have not submitted any requests yet.")
         except Exception as e:
             st.info("Request history coming soon! Contact benjamin@chieac.org for updates.")
+    elif st.session_state.student_tab == "profile":
+        st.markdown("### 👤 My Profile")
+        st.markdown("Your personal information on file with ChiEAC.")
+        st.markdown("<br>", unsafe_allow_html=True)
+        try:
+            USERS_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Users"
+            df = pd.read_csv(USERS_URL)
+            df.columns = ["Name", "Phone", "Email", "Password", "Address", "DOB", "Gender", "Username", "Role"]
+            user_data = df[df["Username"] == st.session_state.user]
+            if len(user_data) > 0:
+                row = user_data.iloc[0]
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown(f"**Full Name:** {row['Name']}")
+                    st.markdown(f"**Email:** {row['Email']}")
+                    st.markdown(f"**Phone:** {row['Phone']}")
+                    st.markdown(f"**Gender:** {row['Gender']}")
+                with col2:
+                    st.markdown(f"**Username:** {row['Username']}")
+                    st.markdown(f"**Date of Birth:** {row['DOB']}")
+                    st.markdown(f"**Address:** {row['Address']}")
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.info("To update your information please contact benjamin@chieac.org or call 773-599-0267")
+        except Exception as e:
+            st.info("Profile loading. Contact benjamin@chieac.org for help.")
 
+    elif st.session_state.student_tab == "resources":
+        st.markdown("### 📚 Chicago Community Resources")
+        st.markdown("Helpful resources for students and families in Chicago.")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        resources = [
+            ("🍎 Food Resources", [
+                ("Greater Chicago Food Depository", "773-247-3663", "chicagosfoodbank.org"),
+                ("Chicago Community Kitchens", "312-563-9400", "chicagocommunity.org"),
+                ("SNAP Benefits", "800-843-6154", "dhs.state.il.us"),
+            ]),
+            ("🏠 Housing Resources", [
+                ("Chicago Housing Authority", "312-742-8500", "thecha.org"),
+                ("Interfaith Housing Center", "847-823-1100", "interfaithhousing.org"),
+                ("Emergency Housing Hotline", "312-744-5000", "cityofchicago.org"),
+            ]),
+            ("🧠 Mental Health Resources", [
+                ("NAMI Chicago", "833-626-4244", "namichicago.org"),
+                ("Chicago Behavioral Hospital", "800-890-1423", "chicagobehavioral.org"),
+                ("Crisis Text Line", "Text HOME to 741741", "crisistextline.org"),
+            ]),
+            ("⚖️ Legal Resources", [
+                ("Legal Aid Chicago", "312-341-1070", "legalaidchicago.org"),
+                ("Chicago Legal Clinic", "773-731-1762", "clclaw.org"),
+                ("Illinois Legal Aid Online", "800-252-8966", "illinoislegalaid.org"),
+            ]),
+            ("💼 Career Resources", [
+                ("Chicago Cook Workforce Partnership", "312-603-0200", "workforceboard.org"),
+                ("City Colleges of Chicago", "773-COLLEGE", "ccc.edu"),
+                ("Illinois WorkNet", "888-367-4382", "illinoisworknet.com"),
+            ]),
+        ]
+
+        for category, items in resources:
+            st.markdown(f"#### {category}")
+            for name, phone, website in items:
+                st.markdown(f"""
+                <div style="background:white; border-radius:8px; padding:16px; margin-bottom:8px; border:1px solid #f0f0f0;">
+                    <strong style="color:#1a1a1a;">{name}</strong><br>
+                    <span style="color:#666; font-size:0.9em;">📞 {phone} &nbsp;|&nbsp; 🌐 {website}</span>
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
+
+    elif st.session_state.student_tab == "contact":
+        st.markdown("### 📞 Contact ChiEAC")
+        st.markdown("We are here to help. Reach out to us anytime!")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("""
+            <div style="background:white; border-radius:12px; padding:24px; border:1px solid #f0f0f0; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <h4 style="color:#2d6a4f; margin-bottom:16px;">Get In Touch</h4>
+                <p>📞 <strong>Phone:</strong> 773-599-0267</p>
+                <p>📧 <strong>Email:</strong> benjamin@chieac.org</p>
+                <p>📍 <strong>Address:</strong> 1156 E 61st St, Chicago, IL 60637</p>
+                <p>🌐 <strong>Website:</strong> chieac.org</p>
+                <p>📸 <strong>Instagram:</strong> @wearechieac</p>
+                <p>▶️ <strong>YouTube:</strong> @chicagoeducated</p>
+            </div>
+            """, unsafe_allow_html=True)
+        with col2:
+            st.markdown("""
+            <div style="background:white; border-radius:12px; padding:24px; border:1px solid #f0f0f0; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <h4 style="color:#2d6a4f; margin-bottom:16px;">Office Hours</h4>
+                <p>Monday to Friday</p>
+                <p>9:00 AM to 5:00 PM CST</p>
+                <br>
+                <p style="color:#666; font-size:0.9em;">For emergencies outside office hours please use the Emergency button on your dashboard or call 911.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="background:#f0fdf4; border-radius:12px; padding:24px; border:1px solid #dcfce7; text-align:center;">
+            <h4 style="color:#2d6a4f;">Follow Us</h4>
+            <p style="color:#666;">Stay updated with ChiEAC news and events</p>
+            <a href="https://www.instagram.com/wearechieac/" target="_blank" style="margin:8px; display:inline-block;">
+                <button style="background:#2d6a4f; color:white; padding:10px 20px; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Instagram</button>
+            </a>
+            <a href="https://www.youtube.com/@chicagoeducated" target="_blank" style="margin:8px; display:inline-block;">
+                <button style="background:#2d6a4f; color:white; padding:10px 20px; border:none; border-radius:6px; font-weight:600; cursor:pointer;">YouTube</button>
+            </a>
+            <a href="https://www.linkedin.com/company/chieac" target="_blank" style="margin:8px; display:inline-block;">
+                <button style="background:#2d6a4f; color:white; padding:10px 20px; border:none; border-radius:6px; font-weight:600; cursor:pointer;">LinkedIn</button>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
+
+    elif st.session_state.student_tab == "faq":
+        st.markdown("### ❓ Frequently Asked Questions")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        faqs = [
+            ("How long does it take to process my request?",
+             "Our team typically responds within 24 to 48 hours. For critical requests we respond as soon as possible."),
+            ("What programs does ChiEAC offer?",
+             "ChiEAC offers two core programs. ELEVATE creates custom professional opportunities for rising scholars including mentorship and college guidance. IMPACT serves as first-responder advocates for students and families in need providing direct support for food, rent, transportation and more."),
+            ("How do I update my personal information?",
+             "Please contact us at benjamin@chieac.org or call 773-599-0267 and our team will update your information."),
+            ("Can I submit multiple support requests?",
+             "Yes you can submit as many requests as you need. Each request is tracked separately and our team will respond to each one."),
+            ("Is my information kept confidential?",
+             "Yes. All personal information you provide is kept strictly confidential and is only used to provide you with the support you need."),
+            ("What should I do in an emergency?",
+             "Click the red EMERGENCY button on your dashboard immediately. Our staff will be alerted right away. For life threatening emergencies please call 911."),
+            ("How can I volunteer with ChiEAC?",
+             "We love volunteers! Visit volunteermatch.org/search/org1194340.jsp to see current volunteer opportunities with ChiEAC."),
+            ("How can I donate to ChiEAC?",
+             "You can donate at zeffy.com/en-US/donation-form/behind-the-introduction-international-student-support-fundraiser. Every dollar helps us serve more students and families."),
+        ]
+
+        for question, answer in faqs:
+            with st.expander(f"❓ {question}"):
+                st.markdown(f"{answer}")
+
+    elif st.session_state.student_tab == "progress":
+        st.markdown("### 📈 My Progress")
+        st.markdown("Track your journey with ChiEAC.")
+        st.markdown("<br>", unsafe_allow_html=True)
+        try:
+            df = pd.read_csv(REQUESTS_URL)
+            df.columns = ["Timestamp", "Username", "Name", "Email", "Phone",
+                         "Neighborhood", "Support Type", "Urgency", "Description", "Status"]
+            my_requests = df[df["Email"] == st.session_state.email]
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Requests", len(my_requests))
+            with col2:
+                resolved = len(my_requests[my_requests["Status"] == "Resolved"])
+                st.metric("✅ Resolved", resolved)
+            with col3:
+                pending = len(my_requests[my_requests["Status"] == "Pending"])
+                st.metric("🟡 Pending", pending)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if len(my_requests) > 0:
+                st.markdown("#### Your Request History")
+                for _, row in my_requests.iterrows():
+                    status_icon = get_status_color(row["Status"])
+                    st.markdown(f"""
+                    <div style="background:white; border-radius:8px; padding:16px; margin-bottom:8px; border:1px solid #f0f0f0; border-left:4px solid #2d6a4f;">
+                        <strong>{row['Support Type']}</strong> &nbsp;|&nbsp;
+                        <span style="color:#666; font-size:0.9em;">{row['Urgency']}</span> &nbsp;|&nbsp;
+                        {status_icon} <span style="font-size:0.9em;">{row['Status']}</span> &nbsp;|&nbsp;
+                        <span style="color:#888; font-size:0.85em;">{row['Timestamp']}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.info("You have not submitted any requests yet. Submit your first request to start tracking your progress!")
+
+        except Exception as e:
+            st.info("Progress tracking coming soon!")
 # ══════════════════════════════════════════════════════════════
 # STAFF DASHBOARD
 # ══════════════════════════════════════════════════════════════

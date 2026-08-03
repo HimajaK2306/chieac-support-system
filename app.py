@@ -274,6 +274,48 @@ if st.session_state.page == "landing":
     st.markdown('<a href="https://www.zeffy.com/en-US/donation-form/behind-the-introduction-international-student-support-fundraiser" target="_blank"><button style="background:#2d6a4f; color:white; padding:14px 32px; border:none; border-radius:8px; font-size:1em; font-weight:600; cursor:pointer; width:100%;">Support ChiEAC Students — Donate Now</button></a>', unsafe_allow_html=True)
     
 
+    st.markdown('<div style="padding: 60px 80px; background: white; text-align:center;"><div class="section-badge">Our Impact</div><div class="section-title" style="text-align:center; margin-bottom:8px;">See Our Work in Action</div><div style="color:#666; margin-bottom:32px;">Real stories from our students and community</div>', unsafe_allow_html=True)
+
+    
+    if "video_page" not in st.session_state:
+        st.session_state.video_page = 0
+
+    all_videos = [
+        "https://www.instagram.com/reel/DVv4x0-DQmI/embed/",
+        "https://www.instagram.com/reel/DZXwWIixciX/embed/",
+        "https://www.instagram.com/reel/DbbQbdVR3f_/embed/",
+        "https://www.instagram.com/reel/DbdidkqxaKM/embed/",
+        "https://www.instagram.com/reel/DbTCXfYxs51/embed/",
+        "https://www.instagram.com/reel/Da0Pfr-x3aL/embed/",
+        "https://www.instagram.com/reel/DarNRwouNsW/embed/",
+        "https://www.instagram.com/reel/DaOdTgHhzzU/embed/",
+        "https://www.instagram.com/reel/DZ7ucoqRg9y/embed/",
+        "https://www.instagram.com/reel/DZBbgxtB1ii/embed/",
+    ]
+
+    start = st.session_state.video_page * 3
+    current_videos = all_videos[start:start+3]
+
+    col1, col2, col3 = st.columns(3)
+    cols = [col1, col2, col3]
+    for i, video_url in enumerate(current_videos):
+        with cols[i]:
+            st.markdown(f'<div style="overflow:hidden; height:480px; border-radius:12px;"><iframe src="{video_url}" width="100%" height="800" frameborder="0" scrolling="no" allowtransparency="true" allow="encrypted-media" style="border:none; margin-top:-130px;"></iframe></div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    nav1, nav2, nav3 = st.columns([2, 1, 2])
+    with nav2:
+        col_prev, col_next = st.columns(2)
+        with col_prev:
+            if st.button("◀ Prev", disabled=st.session_state.video_page == 0, key="vid_prev"):
+                st.session_state.video_page -= 1
+                st.rerun()
+        with col_next:
+            if st.button("Next ▶", disabled=start + 3 >= len(all_videos), key="vid_next"):
+                st.session_state.video_page += 1
+                st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True) 
+
     st.markdown("""
     <div class="volunteer-section">
         <div class="section-badge">Get Involved</div>
